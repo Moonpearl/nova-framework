@@ -1,0 +1,8 @@
+{
+    "require": {
+        "altorouter/altorouter": "^1.2"
+    },
+    "autoload": {
+        "psr-0": {"Nova\\": "src/"}
+    }
+}

@@ -1,0 +1,19 @@
+body {
+  background: steelblue;
+  font-family: sans-serif;
+}
+
+.wrapper {
+  background: white;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.wrapper > * {
+  padding: .5em 1em;
+}
+
+header,
+footer {
+  background: lightblue;
+}
