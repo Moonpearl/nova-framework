@@ -8,6 +8,19 @@ class Model
 
   protected $id;
 
+  static public function amount() {
+    $class_name = get_called_class();
+    $app = Application::getInstance();
+
+    $stmt = $app->query('
+      SELECT
+        COUNT(*)
+      FROM `' . $class_name::TABLE_NAME . '`
+    ');
+
+    return $stmt->fetch()['COUNT(*)'];
+  }
+
   // Fetch all from dqtqbqse
   static public function fetchAll($columns = null) {
     $className = get_called_class();
@@ -16,6 +29,21 @@ class Model
     return $app->queryAsObject(
       $className::buildQuery([
         'select' => $columns
+      ]),
+      $className
+    );
+  }
+
+  // Fetch all from dqtqbqse
+  static public function fetchMostRecent($columns = null) {
+    $className = get_called_class();
+    $app = Application::getInstance();
+
+    return $app->queryAsObject(
+      $className::buildQuery([
+        'select' => $columns,
+        'order_by' => 'date',
+        'order_asc' => false
       ]),
       $className
     );
@@ -33,6 +61,64 @@ class Model
       ]),
       $className
     )[0];
+  }
+
+  static public function add($params) {
+    $className = get_called_class();
+    $app = Application::getInstance();
+
+    list($insert, $values) = $className::packArray($params);
+    $query = [
+      'INSERT INTO `' . $className::TABLE_NAME . '` ' . $insert,
+      'VALUES ' . $values
+    ];
+    $query = join(PHP_EOL, $query);
+    $app->exec($query);
+  }
+
+  static public function update($id, $params) {
+    $className = get_called_class();
+    $app = Application::getInstance();
+
+    $set = [];
+    foreach ($params as $columnName => $value) {
+      array_push($set, '`' . $columnName . '` = \'' . $value . '\'');
+    }
+    $set = join(', ', $set);
+
+    list($insert, $values) = $className::packArray($params);
+    $query = [
+      'UPDATE `' . $className::TABLE_NAME . '`',
+      'SET ' . $set,
+      'WHERE `id` = ' . $id
+    ];
+    $query = join(PHP_EOL, $query);
+    $app->exec($query);
+  }
+
+  static public function delete($id) {
+    $className = get_called_class();
+    $app = Application::getInstance();
+    $query = [
+      'DELETE FROM `' . $className::TABLE_NAME . '`',
+      'WHERE `id` = ' . $id
+    ];
+    $query = join(PHP_EOL, $query);
+    $app->exec($query);
+  }
+
+  static public function packArray($params) {
+    $insert = [];
+    $values = [];
+    foreach ($params as $columnName => $value) {
+      array_push($insert, '`' . $columnName . '`');
+      array_push($values, '\'' . $value . '\'');
+    }
+    $result = [];
+    foreach ([$insert, $values] as $data) {
+      array_push($result, '(' . join(', ', $data) . ')');
+    }
+    return $result;
   }
 
   // Build SQL query from options
@@ -107,7 +193,7 @@ class Model
     return $result;
   }
 
-  public getId() {
+  public function getId() {
     return $this->id;
   }
 }

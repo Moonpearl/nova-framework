@@ -68,10 +68,12 @@ class Application extends Singleton
     $routes = $this->readConfig($this->data['config']['routes']);
     // Setup routes
     foreach ($routes as $name => $route) {
+      if (!isset($route['view'])) $route['view'] = null;
+      if (!isset($route['template'])) $route['template'] = null;
       $this->router->map(
         $route['verb'],
         $route['url'],
-        $route['controller'] . '#' . $route['method'],
+        [$route['controller'], $name, $route['view'], $route['template']],
         $name
       );
     }
@@ -81,23 +83,34 @@ class Application extends Singleton
     $match = $this->router->match();
 
     if ($match) {
-      list($controllerName, $methodName) = explode('#', $match['target']);
+      list($controllerName, $methodName, $viewName, $templateName) = $match['target'];
+      $params = $match['params'];
     } else {
-      $controllerName = 'Controller';
+      $controllerName = 'Nova\Controller';
       $methodName = 'page404';
+      $viewName = 'main';
+      $templateName = '404';
+      $params = [];
     }
 
-    $this->readViewConfig($methodName);
+    // $this->readViewConfig($viewName);
     $this->controller = new $controllerName;
-    $this->controller->$methodName($match['params']);
+    $new_params = $this->controller->$methodName($params);
+    $params = array_merge($params, $new_params);
+    $this->controller->show($viewName, $templateName, $params);
   }
 
-  public function generateStylesheets() {
-    $result = [];
-    foreach ($this->stylesheets as $stylesheet) {
-      array_push($result, HTML::generateCSSLink(Path::css_url($stylesheet)));
-    }
-    return join(PHP_EOL, $result);
+  // public function generateStylesheets() {
+  //   $result = [];
+  //   foreach ($this->stylesheets as $stylesheet) {
+  //     array_push($result, HTML::generateCSSLink(Path::css_url($stylesheet)));
+  //   }
+  //   return join(PHP_EOL, $result);
+  // }
+
+  public function generateStylesheet($name, $data = []) {
+    if (!Path::is_full_url($name)) $name = Path::css_url($name);
+    return HTML::generateCSSLink($name, $data);
   }
 
   public function generateTitle() {
@@ -165,12 +178,19 @@ class Application extends Singleton
   }
 
   public function queryAsObject($query, $className) {
-    return self::query($query)->fetchAll(\PDO::FETCH_OBJECT, $className);
+    return self::query($query)->fetchAll(\PDO::FETCH_CLASS, $className);
   }
 
   public function query($query) {
-    $stmt = $this->$pdo->query($query);
-    return $stmt;
+    return $this->pdo->query($query);
+  }
+
+  public function exec($query) {
+    return $this->pdo->exec($query);
+  }
+
+  public function generateRoute($routeName, $params = []) {
+    return $this->router->generate($routeName, $params);
   }
 
 }

@@ -2,26 +2,26 @@
 
 class Article extends Nova\Model
 {
-  const TABLE_NAME = 'article';
+  const TABLE_NAME = 'articles';
 
   private $title;
   private $content;
   private $author;
   private $date;
 
-  public getTitle() {
+  public function getTitle() {
     return $this->title;
   }
 
-  public getContent() {
+  public function getContent() {
     return $this->content;
   }
 
-  public getAuthor() {
+  public function getAuthor() {
     return $this->author;
   }
 
-  public getDate() {
+  public function getDate() {
     return $this->date;
   }
 }

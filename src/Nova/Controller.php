@@ -4,12 +4,22 @@ namespace Nova;
 
 class Controller
 {
-  public function page404() {
-    $this->show('main', '404');
+  protected function redirect($routeName, $params = []) {
+    $url = Application::getInstance()->generateRoute($routeName, $params);
+    header('Location: ' . $url);
+    exit();
   }
 
-  protected function show($viewName, $templateName, $params = []) {
+  public function page404() {
+    return [
+      'pageTitle' => 'Page Not Found'
+    ];
+  }
+
+  public function show($viewName, $templateName, $params = []) {
     $app = Application::getInstance();
+    $header = 'header';
+    $footer = 'footer';
 
     // Load all variables in parameters
     foreach ($params as $varName => $value) {

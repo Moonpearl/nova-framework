@@ -1,9 +1,9 @@
-<!-- main view -->
+<!-- article view -->
 <!DOCTYPE html>
 <html lang="<?= $app->language ?>">
 <head>
   <?php include Nova\Path::template('head') ?>
-  <?= $app->generateStylesheet('main') ?>
+  <?= $app->generateStylesheet('article') ?>
 </head>
 <body>
 <div class="wrapper">
@@ -14,6 +14,10 @@
   <main>
     <?php include Nova\Path::template($templateName) ?>
   </main>
+
+  <aside>
+    <?php include Nova\Path::template('article_sidebar') ?>
+  </aside>
 
   <footer>
     <?php include Nova\Path::template('footer') ?>

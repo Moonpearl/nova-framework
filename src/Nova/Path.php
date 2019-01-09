@@ -9,6 +9,10 @@ class Path
     return join('/', $args);
   }
 
+  public static function is_full_url($url) {
+    return preg_match('/https?\:\/\//', $url);
+  }
+
   public static function file($filename) {
     if (!file_exists($filename)) {
       throw new \RuntimeException("File not found: $filename");

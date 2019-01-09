@@ -1,0 +1,26 @@
+header {
+  grid-area: hd;
+}
+main {
+  grid-area: main;
+}
+aside {
+  background: pink;
+  grid-area: sd;
+}
+footer {
+  grid-area: ft;
+}
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(100px, auto);
+  grid-template-areas:
+    "hd   hd   hd   hd"
+    "main main main sd"
+    "ft ft ft sd";
+}
+form > * {
+  display: block;
+  margin: .5em 0;
+}
