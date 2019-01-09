@@ -74,6 +74,7 @@ class Model
     ];
     $query = join(PHP_EOL, $query);
     $app->exec($query);
+    return $app->lastInsertId();
   }
 
   static public function update($id, $params) {

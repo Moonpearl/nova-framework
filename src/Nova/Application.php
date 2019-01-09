@@ -193,4 +193,8 @@ class Application extends Singleton
     return $this->router->generate($routeName, $params);
   }
 
+  public function lastInsertId() {
+    return $this->pdo->lastInsertId();
+  }
+
 }

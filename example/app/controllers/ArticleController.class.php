@@ -27,8 +27,8 @@ class ArticleController extends Nova\Controller
   }
 
   public function add_article() {
-    Article::add($_POST);
-    $this->redirect('article', ['id' => Article::amount()]);
+    $id = Article::add($_POST);
+    $this->redirect('article', ['id' => $id]);
   }
 
   public function modify_article($params) {
@@ -41,6 +41,7 @@ class ArticleController extends Nova\Controller
   }
 
   public function update_article($params) {
+    $_POST['date'] = date('Y-m-d H:i:s', time());
     Article::update($params['id'], $_POST);
     $this->redirect('article', ['id' => $params['id']]);
   }
