@@ -1,7 +1,4 @@
 <!-- article view -->
-<!DOCTYPE html>
-<html lang="<?= $app->language ?>">
-<head>
   <?php include Nova\Path::template('head') ?>
   <?= Nova\HTML::generateStylesheet('article') ?>
 </head>

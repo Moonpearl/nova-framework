@@ -17,6 +17,7 @@ class ArticleController extends Nova\Controller
   public function all_articles() {
     $this->getArticles();
     $this->pageTitle = 'Nova Blog Homepage';
+    $this->amount = Article::amount();
   }
 
   public function edit_article() {

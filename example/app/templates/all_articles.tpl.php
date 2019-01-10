@@ -1,6 +1,7 @@
 <!-- start main template -->
     <h1>All Articles</h1>
     <p>Displays all articles</p>
+    <p><?= $amount ?> articles currently published.</p>
     <a href="<?= Nova\Router::generate('edit_article') ?>">
       Post new article
     </a>

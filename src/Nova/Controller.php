@@ -11,7 +11,7 @@ class Controller
   }
 
   protected function redirect($routeName, $params = []) {
-    $url = Application::getInstance()->generateRoute($routeName, $params);
+    $url = Router::generate($routeName, $params);
     header('Location: ' . $url);
     exit();
   }

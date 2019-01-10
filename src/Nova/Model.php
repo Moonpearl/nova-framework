@@ -10,9 +10,8 @@ class Model
 
   static public function amount() {
     $class_name = get_called_class();
-    $app = Application::getInstance();
 
-    $stmt = $app->query('
+    $stmt = Database::query('
       SELECT
         COUNT(*)
       FROM `' . $class_name::TABLE_NAME . '`
@@ -24,9 +23,8 @@ class Model
   // Fetch all from dqtqbqse
   static public function fetchAll($columns = null) {
     $className = get_called_class();
-    $app = Application::getInstance();
 
-    return $app->queryAsObject(
+    return Database::queryAsObject(
       $className::buildQuery([
         'select' => $columns
       ]),
@@ -37,9 +35,8 @@ class Model
   // Fetch all from dqtqbqse
   static public function fetchMostRecent($columns = null) {
     $className = get_called_class();
-    $app = Application::getInstance();
 
-    return $app->queryAsObject(
+    return Database::queryAsObject(
       $className::buildQuery([
         'select' => $columns,
         'order_by' => 'date',
@@ -51,9 +48,8 @@ class Model
 
   static public function fetchById($id, $columns = null) {
     $className = get_called_class();
-    $app = Application::getInstance();
 
-    return $app->queryAsObject(
+    return Database::queryAsObject(
       $className::buildQuery([
         'select' => $columns,
         'where' => ['id', $id],
@@ -65,7 +61,6 @@ class Model
 
   static public function add($params) {
     $className = get_called_class();
-    $app = Application::getInstance();
 
     list($insert, $values) = $className::packArray($params);
     $query = [
@@ -73,13 +68,12 @@ class Model
       'VALUES ' . $values
     ];
     $query = join(PHP_EOL, $query);
-    $app->exec($query);
+    Database::exec($query);
     return $app->lastInsertId();
   }
 
   static public function update($id, $params) {
     $className = get_called_class();
-    $app = Application::getInstance();
 
     $set = [];
     foreach ($params as $columnName => $value) {
@@ -94,18 +88,18 @@ class Model
       'WHERE `id` = ' . $id
     ];
     $query = join(PHP_EOL, $query);
-    $app->exec($query);
+    Database::exec($query);
   }
 
   static public function delete($id) {
     $className = get_called_class();
-    $app = Application::getInstance();
+
     $query = [
       'DELETE FROM `' . $className::TABLE_NAME . '`',
       'WHERE `id` = ' . $id
     ];
     $query = join(PHP_EOL, $query);
-    $app->exec($query);
+    Database::exec($query);
   }
 
   static public function packArray($params) {

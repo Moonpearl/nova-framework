@@ -8,13 +8,16 @@ class Application extends Singleton
 
   private $controller;
   private $data;
-  private $pdo;
 
   protected function __construct() {
     // Read project config file
     $this->readProject();
     // Setup paths
     Path::setData($this->data['path'], $this->data['extension']);
+    // Setup database handler
+    Database::createHandler($this->readConfig($this->data['config']['database']));
+    // Setup router
+    $this->setupRouter();
     // Setup classes autoload
     spl_autoload_register(function ($className) {
       // Try and load target class
@@ -24,10 +27,10 @@ class Application extends Singleton
         throw new \RuntimeException("Class '$className' could not be found.");
       }
     });
-    // Setup database dba_handler
-    $this->createPDO();
-    // Setup router
-    $this->setupRouter();
+  }
+
+  static public function run() {
+    self::getInstance()->launch();
   }
 
   private function readProject() {
@@ -74,7 +77,7 @@ class Application extends Singleton
     }
   }
 
-  public function run() {
+  public function launch() {
     $match = Router::match();
 
     if ($match) {
@@ -96,7 +99,7 @@ class Application extends Singleton
     $this->controller->show($viewName, $templateName);
   }
 
-  public function __get($varName) {
+  public function data($varName) {
     $varName = explode('_', $varName);
     switch (sizeof($varName)) {
       case 1:
@@ -128,48 +131,6 @@ class Application extends Singleton
         throw new \RuntimeException("Unknown property '$name' in Application#get");
       }
     }
-  }
-
-  private function createPDO() {
-    $charset = 'utf8';
-
-    $data = $this->readConfig($this->data['config']['database']);
-
-    $host = $data['host'];
-    $db = $data['db'];
-
-    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-    $options = [
-      \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-      \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-      \PDO::ATTR_EMULATE_PREPARES   => false,
-    ];
-    try {
-      $pdo = new \PDO($dsn, $data['user'], $data['pass'], $options);
-    } catch (\PDOException $e) {
-      throw new \PDOException($e->getMessage(), (int)$e->getCode());
-    }
-    $this->pdo = $pdo;
-  }
-
-  public function queryAsArray($query) {
-    return self::query($query)->fetchAll();
-  }
-
-  public function queryAsObject($query, $className) {
-    return self::query($query)->fetchAll(\PDO::FETCH_CLASS, $className);
-  }
-
-  public function query($query) {
-    return $this->pdo->query($query);
-  }
-
-  public function exec($query) {
-    return $this->pdo->exec($query);
-  }
-
-  public function lastInsertId() {
-    return $this->pdo->lastInsertId();
   }
 
 }
