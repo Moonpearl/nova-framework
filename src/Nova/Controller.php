@@ -18,24 +18,17 @@ class Controller
 
   protected function modelOperation($className, $action, $redirectOnId = null, $redirectOnNull = null) {
     switch ($action) {
-      case 'add':
-        $id = $className::add($_POST);
-        break;
-
-      case 'update':
-        // $_POST['date'] = date('Y-m-d H:i:s', time());
-        $id = $this->getProperty('id');
-        $className::update($id, $_POST);
-        break;
+      case 'save':
+        $object = new $className($_POST);
+        $id = $object->save();
+        if (!is_null($redirectOnId)) $this->redirect($redirectOnId, ['id' => $id]);
+        return $id;
 
       case 'delete':
-        $className::delete($this->getProperty('id'));
+        $className::delete($this->id);
         if (!is_null($redirectOnNull)) $this->redirect($redirectOnNull);
         return null;
     }
-
-    if (!is_null($redirectOnId)) $this->redirect($redirectOnId, ['id' => $id]);
-    return $id;
   }
 
   public function page404() {

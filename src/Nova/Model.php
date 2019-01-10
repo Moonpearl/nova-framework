@@ -2,26 +2,74 @@
 
 namespace Nova;
 
-class Model
+abstract class Model
 {
   const TABLE_NAME = null;
+  const REQUIRED = [];
+  const TYPE = [ 'id' => 'int' ];
 
   protected $id;
 
-  static public function amount() {
-    $class_name = get_called_class();
+  public function __construct($data = null) {
+    if (!is_null($data)) {
+      $className = get_called_class();
+      $required = array_merge(self::REQUIRED, $className::REQUIRED);
+      $type = array_merge(self::TYPE, $className::TYPE);
 
-    $stmt = Database::query('
-      SELECT
+      foreach(get_object_vars($this) as $varName => $value) {
+        if (isset($data[$varName])) {
+          $value = $data[$varName];
+          if (isset($type[$varName])) {
+            $varType = $type[$varName];
+            if (preg_match('/^\/.+\/$/', $varType)) {
+              if (!preg_match($varType, $value)) {
+                throw new \RuntimeException("Variable '$varName' doesn't match pattern define in model '$className' ($value given)");
+              }
+            } else {
+              switch($varType) {
+                case 'string':
+                  $value = strval($value);
+                  break;
+
+                case 'int':
+                  $value = intval($value);
+                  break;
+
+                case 'bool':
+                  $value = boolval($value);
+                  break;
+
+                case 'float':
+                  $value = floatval($value);
+                  break;
+              }
+            }
+            $this->$varName = $value;
+          }
+        } else {
+          if (in_array($varName, $required)) {
+            throw new \RuntimeException("Variable '$varName' required in model '$className'");
+          }
+        }
+      }
+    }
+  }
+
+  static public function amount() {
+    $className = get_called_class();
+    $tableName = $className::TABLE_NAME;
+
+    $stmt = Database::query(
+      "SELECT
         COUNT(*)
-      FROM `' . $class_name::TABLE_NAME . '`
-    ');
+      FROM `$tableName`"
+    );
 
     return $stmt->fetch()['COUNT(*)'];
   }
 
-  // Fetch all from dqtqbqse
-  static public function fetchAll($columns = null) {
+  // Fetch all from database
+  static public function findAll($columns = null) {
     $className = get_called_class();
 
     return Database::queryAsObject(
@@ -33,7 +81,7 @@ class Model
   }
 
   // Fetch all from dqtqbqse
-  static public function fetchMostRecent($columns = null) {
+  static public function findMostRecent($columns = null) {
     $className = get_called_class();
 
     return Database::queryAsObject(
@@ -46,7 +94,7 @@ class Model
     );
   }
 
-  static public function fetchById($id, $columns = null) {
+  static public function find($id, $columns = null) {
     $className = get_called_class();
 
     return Database::queryAsObject(
@@ -59,55 +107,79 @@ class Model
     )[0];
   }
 
-  static public function add($params) {
-    $className = get_called_class();
-
-    list($insert, $values) = $className::packArray($params);
-    $query = [
-      'INSERT INTO `' . $className::TABLE_NAME . '` ' . $insert,
-      'VALUES ' . $values
-    ];
-    $query = join(PHP_EOL, $query);
-    Database::exec($query);
-    return $app->lastInsertId();
+  public function save() {
+    if (is_null($this->id)) {
+      return $this->insert();
+    } else {
+      return $this->update();
+    }
   }
 
-  static public function update($id, $params) {
+  public function getVarsWithoutId() {
+    $vars = get_object_vars($this);
+    unset($vars['id']);
+    return $vars;
+  }
+
+  public function insert() {
     $className = get_called_class();
+    $tableName = $className::TABLE_NAME;
+
+    $vars = $this->getVarsWithoutId();
+    $varNames = array_keys($vars);
+
+    list($insert, $values) = $className::packArray($varNames);
+
+    $stmt = Database::prepare(
+      "INSERT INTO `$tableName` $insert
+      VALUES $values"
+    );
+    $stmt->execute($vars);
+
+    $this->id = Database::lastInsertId();
+
+    return $this->id;
+  }
+
+  public function update() {
+    $className = get_called_class();
+    $tableName = $className::TABLE_NAME;
+
+    $vars = $this->getVarsWithoutId();
+    unset($vars['id']);
 
     $set = [];
-    foreach ($params as $columnName => $value) {
-      array_push($set, '`' . $columnName . '` = \'' . $value . '\'');
+    foreach (array_keys($vars) as $varName) {
+      array_push($set, "$varName = :$varName");
     }
     $set = join(', ', $set);
 
-    list($insert, $values) = $className::packArray($params);
-    $query = [
-      'UPDATE `' . $className::TABLE_NAME . '`',
-      'SET ' . $set,
-      'WHERE `id` = ' . $id
-    ];
-    $query = join(PHP_EOL, $query);
-    Database::exec($query);
+    $stmt = Database::prepare(
+      "UPDATE `$tableName`
+      SET $set
+      WHERE `id` = $this->id"
+    );
+    $stmt->execute($vars);
+
+    return $this->id;
   }
 
   static public function delete($id) {
     $className = get_called_class();
+    $tableName = $className::TABLE_NAME;
 
-    $query = [
-      'DELETE FROM `' . $className::TABLE_NAME . '`',
-      'WHERE `id` = ' . $id
-    ];
-    $query = join(PHP_EOL, $query);
-    Database::exec($query);
+    Database::exec(
+      "DELETE FROM `$tableName`
+      WHERE `id` = $id"
+    );
   }
 
-  static public function packArray($params) {
+  static public function packArray($varNames) {
     $insert = [];
     $values = [];
-    foreach ($params as $columnName => $value) {
-      array_push($insert, '`' . $columnName . '`');
-      array_push($values, '\'' . $value . '\'');
+    foreach ($varNames as $varName) {
+      array_push($insert, '`' . $varName . '`');
+      array_push($values, ':' . $varName);
     }
     $result = [];
     foreach ([$insert, $values] as $data) {

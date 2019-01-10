@@ -3,11 +3,18 @@
 class Article extends Nova\Model
 {
   const TABLE_NAME = 'articles';
+  const REQUIRED = ['title', 'content'];
+  const TYPE = [
+    'title' => 'string',
+    'content' => 'string',
+    'author' => 'int',
+    'date' => '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/'
+  ];
 
-  private $title;
-  private $content;
-  private $author;
-  private $date;
+  protected $title;
+  protected $content;
+  protected $author;
+  protected $date;
 
   public function getTitle() {
     return $this->title;
