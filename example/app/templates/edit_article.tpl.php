@@ -1,7 +1,7 @@
 <!-- start new article template -->
     <h1><?= $buttonCaption ?> Article</h1>
     <form id="new-article" method="post" action="<?=
-        $app->generateRoute('article_operation', [
+        Nova\Router::generate('article_operation', [
           'action' => isset($article) ? 'update' : 'add',
           'id' => isset($article) ? $article->getId() : null
         ])
@@ -14,7 +14,7 @@
     </form>
     <?php if (isset($article)): ?>
     <form method="post" action="<?=
-      $app->generateRoute('article_operation', [
+      Nova\Router::generate('article_operation', [
         'action' => 'delete',
         'id' => isset($article) ? $article->getId() : null
       ])

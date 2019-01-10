@@ -3,7 +3,7 @@
 <html lang="<?= $app->language ?>">
 <head>
   <?php include Nova\Path::template('head') ?>
-  <?= $app->generateStylesheet('main') ?>
+  <?= Nova\HTML::generateStylesheet('main') ?>
 </head>
 <body>
 <div class="wrapper">

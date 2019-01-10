@@ -5,7 +5,7 @@
         'all_articles' => 'Blog'
       ] as $routeName => $caption): ?>
       <li>
-        <a href="<?= $app->generateRoute($routeName) ?>"><?= $caption ?></a>
+        <a href="<?= Nova\Router::generate($routeName) ?>"><?= $caption ?></a>
       </li>
       <?php endforeach; ?>
     </ul>

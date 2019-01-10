@@ -6,7 +6,6 @@ class Application extends Singleton
 {
   const PROJECT_FILE = 'project.ini';
 
-  private $router;
   private $controller;
   private $data;
   private $pdo;
@@ -58,8 +57,7 @@ class Application extends Singleton
   }
 
   private function setupRouter() {
-    $this->router = new \AltoRouter;
-    $this->router->setBasePath($_SERVER['BASE_URI']);
+    Router::setBasePath($_SERVER['BASE_URI']);
 
     // Read routes config file
     $routes = $this->readConfig($this->data['config']['routes']);
@@ -67,7 +65,7 @@ class Application extends Singleton
     foreach ($routes as $name => $route) {
       if (!isset($route['view'])) $route['view'] = null;
       if (!isset($route['template'])) $route['template'] = null;
-      $this->router->map(
+      Router::map(
         $route['verb'],
         $route['url'],
         [$route['controller'], $name, $route['view'], $route['template']],
@@ -77,7 +75,7 @@ class Application extends Singleton
   }
 
   public function run() {
-    $match = $this->router->match();
+    $match = Router::match();
 
     if ($match) {
       list($controllerName, $methodName, $viewName, $templateName) = $match['target'];
@@ -96,23 +94,6 @@ class Application extends Singleton
     $this->controller = new $controllerName($params);
     $this->controller->$methodName();
     $this->controller->show($viewName, $templateName);
-  }
-
-  // public function generateStylesheets() {
-  //   $result = [];
-  //   foreach ($this->stylesheets as $stylesheet) {
-  //     array_push($result, HTML::generateCSSLink(Path::css_url($stylesheet)));
-  //   }
-  //   return join(PHP_EOL, $result);
-  // }
-
-  public function generateStylesheet($name, $data = []) {
-    if (!Path::is_full_url($name)) $name = Path::css_url($name);
-    return HTML::generateCSSLink($name, $data);
-  }
-
-  public function generateTitle() {
-    return HTML::generateTag('title', 'Dummy Title');
   }
 
   public function __get($varName) {
@@ -185,10 +166,6 @@ class Application extends Singleton
 
   public function exec($query) {
     return $this->pdo->exec($query);
-  }
-
-  public function generateRoute($routeName, $params = []) {
-    return $this->router->generate($routeName, $params);
   }
 
   public function lastInsertId() {

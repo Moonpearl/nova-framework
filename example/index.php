@@ -4,5 +4,8 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Nova\Application;
+use Nova\HTML;
+use Nova\Path;
+use Nova\Router;
 
-Application::getInstance()->run();
+Nova\Application::getInstance()->run();

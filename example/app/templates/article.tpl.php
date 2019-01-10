@@ -1,11 +1,11 @@
 <!-- start main template -->
     <h1><?= $article->getTitle() ?></h1>
     <p><?= $article->getContent() ?></p>
-    <a href="<?= $app->generateRoute('all_articles') ?>">
+    <a href="<?= Nova\Router::generate('all_articles') ?>">
       Back
     </a>
     <div>
-      <a href="<?= $app->generateRoute('edit_article', ['id' => $article->getId()]) ?>">
+      <a href="<?= Nova\Router::generate('edit_article', ['id' => $article->getId()]) ?>">
         Modify
       </a>
     </div>
