@@ -3,7 +3,7 @@
 class Article extends Nova\Model
 {
   const TABLE_NAME = 'articles';
-  const REQUIRED = ['title', 'content'];
+  const REQUIRED = ['title', 'content', 'author'];
   const TYPE = [
     'title' => 'string',
     'content' => 'string',

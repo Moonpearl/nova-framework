@@ -1,5 +1,6 @@
 <!-- start main template -->
     <h1><?= $article->getTitle() ?></h1>
+    <p class="author">Posted by <?= $author->getName() ?> on <?= $article->getDate() ?></p>
     <p><?= $article->getContent() ?></p>
     <a href="<?= Nova\Router::generate('all_articles') ?>">
       Back

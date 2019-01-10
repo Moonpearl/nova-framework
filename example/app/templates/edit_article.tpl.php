@@ -14,6 +14,7 @@
       <?php if (isset($article)): ?>
       <input name="id" type="hidden" value="<?= $article->getId() ?>" />
       <?php endif; ?>
+      <input name="author" type="hidden" value="1" />
     </form>
     <?php if (isset($article)): ?>
     <form method="post" action="<?=

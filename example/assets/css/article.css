@@ -24,3 +24,7 @@ form > * {
   display: block;
   margin: .5em 0;
 }
+.author{
+  font-size: .8em;
+  font-style: italic;
+}

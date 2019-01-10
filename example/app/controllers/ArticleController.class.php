@@ -11,6 +11,7 @@ class ArticleController extends Nova\Controller
   public function article() {
     $this->getArticles();
     $this->article = Article::find($this->id);
+    $this->author = Author::find($this->article->getAuthor());
     $this->pageTitle = $this->article->getTitle();
   }
 
@@ -18,6 +19,7 @@ class ArticleController extends Nova\Controller
     $this->getArticles();
     $this->pageTitle = 'Nova Blog Homepage';
     $this->amount = Article::amount();
+    $this->authors = Author::findAllIndexed();
   }
 
   public function edit_article() {

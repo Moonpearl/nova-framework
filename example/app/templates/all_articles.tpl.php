@@ -11,6 +11,7 @@
       <a href="<?= Nova\Router::generate('article', ['id' => $article->getId()]) ?>">
         <h2><?= $article->getTitle() ?></h2>
       </a>
+      <p class="author">Posted by <?= $authors[$article->getAuthor()]->getName() ?> on <?= $article->getDate() ?></p>
       <p><?= $article->getContent() ?></p>
     </article>
     <?php endforeach; ?>

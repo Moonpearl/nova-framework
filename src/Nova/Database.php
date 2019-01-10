@@ -22,6 +22,15 @@ class Database extends Singleton
     return self::getInstance()->pdo->query($query)->fetchAll(\PDO::FETCH_CLASS, $className);
   }
 
+  public static function queryAsIndexedObject($query, $className) {
+    $result = [];
+    $stmt = self::getInstance()->pdo->query($query);
+    while ($object = $stmt->fetchObject($className)) {
+      $result[$object->getId()] = $object;
+    }
+    return $result;
+  }
+
   public static function createHandler($data) {
     $charset = 'utf8';
 

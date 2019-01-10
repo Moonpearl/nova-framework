@@ -80,6 +80,17 @@ abstract class Model
     );
   }
 
+  static public function findAllIndexed($columns = null) {
+    $className = get_called_class();
+
+    return Database::queryAsIndexedObject(
+      $className::buildQuery([
+        'select' => $columns
+      ]),
+      $className
+    );
+  }
+
   // Fetch all from dqtqbqse
   static public function findMostRecent($columns = null) {
     $className = get_called_class();
