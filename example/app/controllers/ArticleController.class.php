@@ -2,52 +2,33 @@
 
 class ArticleController extends Nova\Controller
 {
-  public function article($params) {
-    $article = Article::fetchById($params['id']);
-    return [
-      'pageTitle' => $article->getTitle(),
-      'article' => $article,
-      'articles' => Article::fetchMostRecent()
-    ];
+  const MODEL_NAME = 'Article';
+
+  public function getArticles() {
+    $this->articles = Article::fetchMostRecent();
   }
 
-  public function all_articles($params) {
-    return [
-      'pageTitle' => 'Nova Blog Homepage',
-      'articles' => Article::fetchMostRecent()
-    ];
+  public function article() {
+    $this->getArticles();
+    $this->article = Article::fetchById($this->id);
+    $this->pageTitle = $this->article->getTitle();
   }
 
-  public function new_article() {
-    return [
-      'pageTitle' => 'Nove Blog – New Article',
-      'buttonCaption' => 'Post',
-      'articles' => Article::fetchMostRecent()
-    ];
+  public function all_articles() {
+    $this->getArticles();
+    $this->pageTitle = 'Nova Blog Homepage';
   }
 
-  public function add_article() {
-    $id = Article::add($_POST);
-    $this->redirect('article', ['id' => $id]);
+  public function edit_article() {
+    $this->getArticles();
+    $set = $this->propertyExists('id');
+    if ($set) $this->article = Article::fetchById($this->id);
+    $this->pageTitle = 'Nova Blog – Edit Article';
+    $this->buttonCaption = $set ? 'Update' : 'Post';
   }
 
-  public function modify_article($params) {
-    return [
-      'pageTitle' => 'Nove Blog – Modify Article',
-      'buttonCaption' => 'Update',
-      'article' => Article::fetchById($params['id']),
-      'articles' => Article::fetchMostRecent()
-    ];
+  public function article_operation() {
+    $this->modelOperation('Article', $this->action, 'article', 'all_articles');
   }
 
-  public function update_article($params) {
-    $_POST['date'] = date('Y-m-d H:i:s', time());
-    Article::update($params['id'], $_POST);
-    $this->redirect('article', ['id' => $params['id']]);
-  }
-
-  public function delete_article($params) {
-    Article::delete($params['id']);
-    $this->redirect('all_articles');
-  }
 }

@@ -5,7 +5,7 @@
       Back
     </a>
     <div>
-      <a href="<?= $app->generateRoute('modify_article', ['id' => $article->getId()]) ?>">
+      <a href="<?= $app->generateRoute('edit_article', ['id' => $article->getId()]) ?>">
         Modify
       </a>
     </div>

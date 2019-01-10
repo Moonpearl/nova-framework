@@ -14,6 +14,8 @@ class Application extends Singleton
   protected function __construct() {
     // Read project config file
     $this->readProject();
+    // Setup paths
+    Path::setData($this->data['path'], $this->data['extension']);
     // Setup classes autoload
     spl_autoload_register(function ($className) {
       // Try and load target class
@@ -33,10 +35,6 @@ class Application extends Singleton
     $this->data = $this->readConfig(self::PROJECT_FILE);
   }
 
-  private function readViewConfig($name) {
-    $this->data = array_merge($this->data, $this->readConfig(Path::viewConfig($name)));
-  }
-
   private function readConfig($filename) {
     return parse_ini_file($filename, true);
   }
@@ -47,11 +45,10 @@ class Application extends Singleton
       return true;
     }
     // Search each directory for target class
-    $directories = array_merge([$this->path_controllers, $this->path_models], $this->path_autoload);
+    $directories = ['model', 'controller', 'local'];
     foreach ($directories as $directory) {
-      $filename = Path::join($directory, $className . $this->extension_class);
       // If class was found, load it and return success
-      if (file_exists($filename)) {
+      if ($filename = Path::__callStatic($directory, [$className])) {
         require_once $filename;
         return true;
       }
@@ -93,11 +90,12 @@ class Application extends Singleton
       $params = [];
     }
 
+    if (!isset($params['pageTitle'])) $params['pageTitle'] = 'pouet';
+
     // $this->readViewConfig($viewName);
-    $this->controller = new $controllerName;
-    $new_params = $this->controller->$methodName($params);
-    $params = array_merge($params, $new_params);
-    $this->controller->show($viewName, $templateName, $params);
+    $this->controller = new $controllerName($params);
+    $this->controller->$methodName();
+    $this->controller->show($viewName, $templateName);
   }
 
   // public function generateStylesheets() {
@@ -137,16 +135,16 @@ class Application extends Singleton
         if (isset($this->data[$section][$name])) {
           return $this->data[$section][$name];
         } else {
-          throw new \RuntimeException("Unknown property '$name' in section '$section' in Project#get");
+          throw new \RuntimeException("Unknown property '$name' in section '$section' in Application#get");
         }
       } else {
-        throw new \RuntimeException("Unknown section '$section' in Project#get");
+        throw new \RuntimeException("Unknown section '$section' in Application#get");
       }
     } else {
       if (isset($this->data[$name])) {
         return $this->data[$name];
       } else {
-        throw new \RuntimeException("Unknown property '$name' in Project#get");
+        throw new \RuntimeException("Unknown property '$name' in Application#get");
       }
     }
   }
