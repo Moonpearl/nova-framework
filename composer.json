@@ -1,6 +1,17 @@
 {
+    "name": "moonpearl/nova-framework",
+    "description": "Minimalist MVC framework inspired by Ruby on Rails.",
+    "keywords": ["framework", "mvc"],
+    "license": "BSD-3-Clause-Clear",
+    "authors": [
+        {
+            "name": "Romain Tello",
+            "email": "romain.tello@gmail.com"
+        }
+    ],
     "require": {
-        "altorouter/altorouter": "^1.2"
+      "php": ">=5.4",
+      "altorouter/altorouter": "^1.2"
     },
     "autoload": {
         "psr-0": {"Nova\\": "src/"}
